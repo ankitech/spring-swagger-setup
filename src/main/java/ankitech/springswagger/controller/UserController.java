@@ -4,8 +4,8 @@ import ankitech.springswagger.model.User;
 import ankitech.springswagger.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "User Controller for managing users")
 public class UserController {
 
-    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
     private final String API_VERSION = "/v1";
 
     private UserService userService;
@@ -27,9 +26,12 @@ public class UserController {
 
     @ApiOperation(value = "Get the details of a user based on id", response = User.class,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "User fetched successfully"),
+            @ApiResponse(code = 404, message = "User not Found")
+    })
     @GetMapping(API_VERSION + "/user/{userId}")
     public ResponseEntity<User> getUserDetails(@PathVariable("userId") String userId) {
-        logger.info("Value of user id : {}", userId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -48,7 +50,8 @@ public class UserController {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Location", API_VERSION + "/user/" + savedUser.getId());
 
-        return new ResponseEntity<>("User created with id : " + savedUser.getId(), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>("User created with id : " +
+                savedUser.getId(), headers, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Update user details",
